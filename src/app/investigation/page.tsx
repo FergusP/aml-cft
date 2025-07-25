@@ -19,6 +19,7 @@ import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useAlertModal } from '@/hooks/useModal'
 import { AlertModal } from '@/components/ui/Modal'
+import InteractiveNetworkGraph from '@/components/network/InteractiveNetworkGraph'
 
 interface Node {
   id: string
@@ -180,77 +181,14 @@ export default function InvestigationTools() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Network Visualization */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Transaction Network</h3>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setZoomLevel(Math.max(0.5, zoomLevel - 0.1))}
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <ZoomOut className="h-4 w-4" />
-                  </button>
-                  <span className="text-sm text-gray-500">{Math.round(zoomLevel * 100)}%</span>
-                  <button
-                    onClick={() => setZoomLevel(Math.min(2, zoomLevel + 0.1))}
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <ZoomIn className="h-4 w-4" />
-                  </button>
-                  <button 
-                    onClick={() => alertModal.showAlert({
-                      type: 'info',
-                      title: 'Fullscreen Mode',
-                      message: 'Mode fullscreen akan memberikan tampilan network graph yang lebih luas untuk analisis detail transaksi.'
-                    })}
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <Maximize2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-              
-              <div className="relative bg-gray-50 rounded-lg overflow-hidden" style={{ height: '500px' }}>
-                <canvas
-                  ref={canvasRef}
-                  width={800}
-                  height={500}
-                  className="w-full h-full"
-                  onClick={(e) => {
-                    // Simple click detection for demo
-                    const rect = canvasRef.current?.getBoundingClientRect()
-                    if (rect) {
-                      const x = e.clientX - rect.left
-                      const y = e.clientY - rect.top
-                      // Would implement proper hit detection here
-                      setSelectedNode(mockNodes[0])
-                    }
-                  }}
-                />
-                
-                {/* Legend */}
-                <div className="absolute bottom-4 left-4 bg-white rounded-lg p-3 shadow-md">
-                  <p className="text-xs font-medium text-gray-700 mb-2">Risk Level</p>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                      <span className="text-xs text-gray-600">High Risk</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                      <span className="text-xs text-gray-600">Medium Risk</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      <span className="text-xs text-gray-600">Low Risk</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <div className="grid grid-cols-1 gap-6">
+          {/* Interactive Network Visualization */}
+          <div className="w-full">
+            <InteractiveNetworkGraph 
+              width={1200} 
+              height={600} 
+              className="w-full"
+            />
           </div>
 
           {/* Node Details */}

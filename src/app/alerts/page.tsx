@@ -9,6 +9,7 @@ import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
 import { useAlertModal } from '@/hooks/useModal'
 import { AlertModal } from '@/components/ui/Modal'
+import AdvancedSearch from '@/components/search/AdvancedSearch'
 
 interface Alert {
   id: string
@@ -105,14 +106,76 @@ export default function AlertCenter() {
   const [selectedSeverity, setSelectedSeverity] = useState<string>('all')
   const [selectedStatus, setSelectedStatus] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [filters, setFilters] = useState<Record<string, any>>({})
   const alertModal = useAlertModal()
 
+  const alertFilters = [
+    {
+      type: 'select' as const,
+      key: 'severity',
+      label: 'Severity',
+      options: [
+        { value: 'all', label: 'All Severities' },
+        { value: 'critical', label: 'Critical' },
+        { value: 'high', label: 'High' },
+        { value: 'medium', label: 'Medium' },
+        { value: 'low', label: 'Low' }
+      ]
+    },
+    {
+      type: 'select' as const,
+      key: 'status',
+      label: 'Status',
+      options: [
+        { value: 'all', label: 'All Status' },
+        { value: 'new', label: 'New' },
+        { value: 'investigating', label: 'Investigating' },
+        { value: 'resolved', label: 'Resolved' },
+        { value: 'false_positive', label: 'False Positive' }
+      ]
+    },
+    {
+      type: 'select' as const,
+      key: 'type',
+      label: 'Alert Type',
+      options: [
+        { value: 'all', label: 'All Types' },
+        { value: 'high_risk', label: 'High Risk' },
+        { value: 'suspicious_pattern', label: 'Suspicious Pattern' },
+        { value: 'velocity', label: 'Velocity Anomaly' },
+        { value: 'mixer', label: 'Mixer Interaction' },
+        { value: 'sanctions', label: 'Sanctions' }
+      ]
+    },
+    {
+      type: 'range' as const,
+      key: 'amount',
+      label: 'Amount Range (Rp)',
+      min: 0,
+      max: 1000000000000
+    }
+  ]
+
+  const handleSearch = (query: string, searchFilters: Record<string, any>) => {
+    setSearchQuery(query)
+    setFilters(searchFilters)
+  }
+
   const filteredAlerts = mockAlerts.filter(alert => {
-    if (selectedSeverity !== 'all' && alert.severity !== selectedSeverity) return false
-    if (selectedStatus !== 'all' && alert.status !== selectedStatus) return false
+    // Text search
     if (searchQuery && !alert.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !alert.description.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !alert.walletAddress?.toLowerCase().includes(searchQuery.toLowerCase())) return false
+    
+    // Filters
+    if (filters.severity && filters.severity !== 'all' && alert.severity !== filters.severity) return false
+    if (filters.status && filters.status !== 'all' && alert.status !== filters.status) return false
+    if (filters.type && filters.type !== 'all' && alert.type !== filters.type) return false
+    if (filters.amount && alert.amount) {
+      if (filters.amount.min && alert.amount < parseFloat(filters.amount.min)) return false
+      if (filters.amount.max && alert.amount > parseFloat(filters.amount.max)) return false
+    }
+    
     return true
   })
 
@@ -185,53 +248,13 @@ export default function AlertCenter() {
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex-1 min-w-[300px]">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Cari alert berdasarkan judul, deskripsi, atau wallet..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <select
-                  value={selectedSeverity}
-                  onChange={(e) => setSelectedSeverity(e.target.value)}
-                  className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="all">Semua Severity</option>
-                  <option value="critical">Critical</option>
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
-                </select>
-                <ChevronDown className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              </div>
-              <div className="relative">
-                <select
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="all">Semua Status</option>
-                  <option value="new">New</option>
-                  <option value="investigating">Investigating</option>
-                  <option value="resolved">Resolved</option>
-                  <option value="false_positive">False Positive</option>
-                </select>
-                <ChevronDown className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Advanced Search */}
+        <AdvancedSearch
+          filters={alertFilters}
+          onSearch={handleSearch}
+          placeholder="Cari alert berdasarkan judul, deskripsi, wallet address..."
+          className="mb-6"
+        />
 
         {/* Alerts List */}
         <div className="space-y-4">

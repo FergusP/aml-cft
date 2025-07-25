@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useAlertModal } from '@/hooks/useModal'
 import { AlertModal } from '@/components/ui/Modal'
+import DarkModeToggle from '@/components/ui/DarkModeToggle'
 
 interface Notification {
   id: number
@@ -205,18 +206,22 @@ export default function Header() {
           </AnimatePresence>
         </div>
 
-        <button 
-          onClick={() => alertModal.showAlert({
-            type: 'info',
-            title: 'System Monitoring Status',
-            message: `Status: Active\nTransactions per second: 342\nActive nodes: 1,234\nUptime: 99.9%`
-          })}
-          className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5 hover:bg-gray-50 cursor-pointer transition-colors"
-        >
-          <div className="h-2 w-2 rounded-full bg-green-500"></div>
-          <span className="text-sm text-gray-600">Live Monitoring</span>
-          <ChevronDown className="h-4 w-4 text-gray-400" />
-        </button>
+        <div className="flex items-center gap-4">
+          <DarkModeToggle />
+          
+          <button 
+            onClick={() => alertModal.showAlert({
+              type: 'info',
+              title: 'System Monitoring Status',
+              message: `Status: Active\nTransactions per second: 342\nActive nodes: 1,234\nUptime: 99.9%`
+            })}
+            className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5 hover:bg-gray-50 cursor-pointer transition-colors"
+          >
+            <div className="h-2 w-2 rounded-full bg-green-500"></div>
+            <span className="text-sm text-gray-600">Live Monitoring</span>
+            <ChevronDown className="h-4 w-4 text-gray-400" />
+          </button>
+        </div>
       </div>
 
       {/* Alert Modal */}

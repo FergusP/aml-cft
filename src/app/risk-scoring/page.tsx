@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import AdvancedRiskScoreVisualization from '@/components/visualization/AdvancedRiskScoreVisualization'
 
 interface RiskFactor {
   id: string
@@ -136,7 +137,10 @@ export default function RiskScoring() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
+        {/* Advanced Risk Visualization */}
+        <AdvancedRiskScoreVisualization />
+        
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Risk Scoring Methodology</h1>
           <p className="text-gray-500 mt-1">

@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { cn, formatCurrency, getRiskColor, getRiskLevel } from '@/lib/utils'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
+import AdvancedSearch from '@/components/search/AdvancedSearch'
 
 interface Transaction {
   id: string
@@ -68,12 +69,85 @@ export default function TransactionMonitoring() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [filter, setFilter] = useState<'all' | 'high-risk' | 'flagged'>('all')
   const [autoRefresh, setAutoRefresh] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filters, setFilters] = useState<Record<string, any>>({})
   const [stats, setStats] = useState({
     totalVolume: 0,
     highRiskCount: 0,
     averageRisk: 0,
     transactionRate: 0
   })
+
+  const transactionFilters = [
+    {
+      type: 'select' as const,
+      key: 'riskLevel',
+      label: 'Risk Level',
+      options: [
+        { value: 'all', label: 'All Risk Levels' },
+        { value: 'high', label: 'High Risk (>70)' },
+        { value: 'medium', label: 'Medium Risk (40-70)' },
+        { value: 'low', label: 'Low Risk (<40)' }
+      ]
+    },
+    {
+      type: 'select' as const,
+      key: 'type',
+      label: 'Transaction Type',
+      options: [
+        { value: 'all', label: 'All Types' },
+        { value: 'send', label: 'Send' },
+        { value: 'receive', label: 'Receive' }
+      ]
+    },
+    {
+      type: 'select' as const,
+      key: 'token',
+      label: 'Token',
+      options: [
+        { value: 'all', label: 'All Tokens' },
+        { value: 'ETH', label: 'ETH' },
+        { value: 'USDT', label: 'USDT' },
+        { value: 'USDC', label: 'USDC' },
+        { value: 'BTC', label: 'BTC' },
+        { value: 'BNB', label: 'BNB' }
+      ]
+    },
+    {
+      type: 'select' as const,
+      key: 'status',
+      label: 'Status',
+      options: [
+        { value: 'all', label: 'All Status' },
+        { value: 'success', label: 'Success' },
+        { value: 'pending', label: 'Pending' },
+        { value: 'failed', label: 'Failed' }
+      ]
+    },
+    {
+      type: 'range' as const,
+      key: 'amount',
+      label: 'Amount Range (Rp)',
+      min: 0,
+      max: 10000000000000
+    },
+    {
+      type: 'multiselect' as const,
+      key: 'flags',
+      label: 'Flags',
+      options: [
+        { value: 'high_risk', label: 'High Risk' },
+        { value: 'large_transaction', label: 'Large Transaction' },
+        { value: 'mixer_interaction', label: 'Mixer Interaction' },
+        { value: 'rapid_movement', label: 'Rapid Movement' }
+      ]
+    }
+  ]
+
+  const handleSearch = (query: string, searchFilters: Record<string, any>) => {
+    setSearchQuery(query)
+    setFilters(searchFilters)
+  }
 
   // Generate initial transactions
   useEffect(() => {
@@ -113,8 +187,48 @@ export default function TransactionMonitoring() {
   }, [transactions])
 
   const filteredTransactions = transactions.filter(tx => {
+    // Text search
+    if (searchQuery && !tx.hash.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !tx.from.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !tx.to.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !tx.token.toLowerCase().includes(searchQuery.toLowerCase())) return false
+    
+    // Risk level filter
+    if (filters.riskLevel && filters.riskLevel !== 'all') {
+      if (filters.riskLevel === 'high' && tx.riskScore <= 70) return false
+      if (filters.riskLevel === 'medium' && (tx.riskScore <= 40 || tx.riskScore > 70)) return false
+      if (filters.riskLevel === 'low' && tx.riskScore > 40) return false
+    }
+    
+    // Other filters
+    if (filters.type && filters.type !== 'all' && tx.type !== filters.type) return false
+    if (filters.token && filters.token !== 'all' && tx.token !== filters.token) return false
+    if (filters.status && filters.status !== 'all' && tx.status !== filters.status) return false
+    
+    // Amount range
+    if (filters.amount) {
+      if (filters.amount.min && tx.amount < parseFloat(filters.amount.min)) return false
+      if (filters.amount.max && tx.amount > parseFloat(filters.amount.max)) return false
+    }
+    
+    // Flags filter
+    if (filters.flags && filters.flags.length > 0) {
+      const hasMatchingFlag = filters.flags.some((flag: string) => {
+        switch (flag) {
+          case 'high_risk': return tx.flags.includes('High Risk')
+          case 'large_transaction': return tx.flags.includes('Large Transaction')
+          case 'mixer_interaction': return tx.flags.includes('Mixer Interaction')
+          case 'rapid_movement': return tx.flags.includes('Rapid Movement')
+          default: return false
+        }
+      })
+      if (!hasMatchingFlag) return false
+    }
+    
+    // Original filter logic
     if (filter === 'high-risk') return tx.riskScore > 70
     if (filter === 'flagged') return tx.flags.length > 0
+    
     return true
   })
 
@@ -208,7 +322,15 @@ export default function TransactionMonitoring() {
           </motion.div>
         </div>
 
-        {/* Filters */}
+        {/* Advanced Search */}
+        <AdvancedSearch
+          filters={transactionFilters}
+          onSearch={handleSearch}
+          placeholder="Cari berdasarkan hash, wallet address, atau token..."
+          className="mb-6"
+        />
+
+        {/* Quick Filters */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-4">
             <Filter className="h-5 w-5 text-gray-400" />

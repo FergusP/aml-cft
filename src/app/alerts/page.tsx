@@ -287,7 +287,7 @@ export default function AlertCenter() {
                       Investigasi
                     </button>
                     <button 
-                      onClick={() => alert(`Viewing details for alert ${alert.id}`)}
+                      onClick={() => window.alert(`Viewing details for alert ${alert.id}`)}
                       className="px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
                     >
                       Detail

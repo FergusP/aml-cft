@@ -45,13 +45,13 @@ const alerts = [
   },
 ]
 
-const severityColors = {
+const severityColors: Record<string, string> = {
   critical: 'bg-red-50 border-red-200 text-red-900',
   warning: 'bg-yellow-50 border-yellow-200 text-yellow-900',
   medium: 'bg-blue-50 border-blue-200 text-blue-900',
 }
 
-const iconColors = {
+const iconColors: Record<string, string> = {
   critical: 'text-red-600 bg-red-100',
   warning: 'text-yellow-600 bg-yellow-100',
   medium: 'text-blue-600 bg-blue-100',

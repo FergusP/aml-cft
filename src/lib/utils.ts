@@ -6,6 +6,18 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrency(value: number): string {
+  // For very large numbers, use compact notation
+  if (value >= 1_000_000_000_000) {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      notation: 'compact',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 1,
+    }).format(value)
+  }
+  
+  // For smaller numbers, use standard formatting
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',

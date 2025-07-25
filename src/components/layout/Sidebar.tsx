@@ -72,8 +72,8 @@ export default function Sidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1 px-3 py-4">
-        <div className="space-y-1">
+      <nav className="flex-1 space-y-2 px-3 py-6">
+        <div className="space-y-2">
           {navigation.map((item) => {
             const isActive = pathname === item.href
             return (
@@ -81,7 +81,7 @@ export default function Sidebar() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                  'group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200',
                   isActive
                     ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-600/30'
                     : 'text-gray-300 hover:bg-gray-800/50 hover:text-white hover:translate-x-1'
@@ -101,7 +101,7 @@ export default function Sidebar() {
           <p className="px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
             Administrasi
           </p>
-          <div className="mt-3 space-y-1">
+          <div className="mt-3 space-y-2">
             {secondaryNavigation.map((item) => {
               const isActive = pathname === item.href
               return (
@@ -109,7 +109,7 @@ export default function Sidebar() {
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                    'group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200',
                     isActive
                       ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-600/30'
                       : 'text-gray-300 hover:bg-gray-800/50 hover:text-white hover:translate-x-1'

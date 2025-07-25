@@ -271,7 +271,7 @@ export default function AlertCenter() {
                 <div className="flex items-start justify-between">
                   <div className="flex gap-4">
                     <div className={cn(
-                      'rounded-lg p-3 border',
+                      'rounded-xl w-16 h-16 border flex items-center justify-center flex-shrink-0',
                       severityColors[alert.severity]
                     )}>
                       <Icon className="h-6 w-6" />

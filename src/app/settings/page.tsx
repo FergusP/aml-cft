@@ -17,6 +17,8 @@ import {
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { useAlertModal, useConfirmModal } from '@/hooks/useModal'
+import { AlertModal, ConfirmModal } from '@/components/ui/Modal'
 
 interface ThresholdSetting {
   id: string
@@ -96,6 +98,8 @@ export default function Settings() {
   const [settings, setSettings] = useState(thresholdSettings)
   const [isSaving, setIsSaving] = useState(false)
   const [activeTab, setActiveTab] = useState<'thresholds' | 'notifications' | 'api' | 'users'>('thresholds')
+  const alertModal = useAlertModal()
+  const confirmModal = useConfirmModal()
 
   const handleSettingChange = (id: string, newValue: number) => {
     setSettings(prev => prev.map(setting => 
@@ -107,7 +111,11 @@ export default function Settings() {
     setIsSaving(true)
     setTimeout(() => {
       setIsSaving(false)
-      alert('Pengaturan berhasil disimpan!')
+      alertModal.showAlert({
+        type: 'success',
+        title: 'Pengaturan Tersimpan',
+        message: 'Semua pengaturan telah berhasil disimpan dan akan diterapkan secara real-time.'
+      })
     }, 1500)
   }
 
@@ -372,9 +380,21 @@ export default function Settings() {
                   />
                   <button 
                     onClick={() => {
-                      if (confirm('Are you sure you want to regenerate the API key?')) {
-                        alert('New API key generated: sk_live_' + Math.random().toString(36).substr(2, 16))
-                      }
+                      confirmModal.showConfirm({
+                        title: 'Regenerate API Key',
+                        message: 'Apakah Anda yakin ingin membuat API key baru? API key lama akan menjadi tidak valid.',
+                        confirmText: 'Regenerate',
+                        cancelText: 'Batal',
+                        type: 'warning',
+                        onConfirm: () => {
+                          const newKey = 'sk_live_' + Math.random().toString(36).substr(2, 16)
+                          alertModal.showAlert({
+                            type: 'success',
+                            title: 'API Key Baru Telah Dibuat',
+                            message: `API Key baru: ${newKey}\n\nSimpan key ini dengan aman. Key lama sudah tidak dapat digunakan.`
+                          })
+                        }
+                      })
                     }}
                     className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
                   >
@@ -407,7 +427,11 @@ export default function Settings() {
             <h3 className="text-lg font-semibold text-gray-900 mb-6">User Management</h3>
             <div className="mb-4">
               <button 
-                onClick={() => alert('Opening Add New User form...')}
+                onClick={() => alertModal.showAlert({
+                  type: 'info',
+                  title: 'Tambah User Baru',
+                  message: 'Form penambahan user baru akan segera dibuka. Pastikan Anda memiliki izin administrator untuk menambah user.'
+                })}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 Add New User
@@ -436,7 +460,11 @@ export default function Settings() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <button 
-                        onClick={() => alert('Opening edit form...')}
+                        onClick={() => alertModal.showAlert({
+                          type: 'info',
+                          title: 'Edit User',
+                          message: 'Form edit user akan segera dibuka. Anda dapat mengubah role, status, dan informasi kontak user.'
+                        })}
                         className="text-blue-600 hover:text-blue-900"
                       >
                         Edit
@@ -454,7 +482,11 @@ export default function Settings() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <button 
-                        onClick={() => alert('Opening edit form...')}
+                        onClick={() => alertModal.showAlert({
+                          type: 'info',
+                          title: 'Edit User',
+                          message: 'Form edit user akan segera dibuka. Anda dapat mengubah role, status, dan informasi kontak user.'
+                        })}
                         className="text-blue-600 hover:text-blue-900"
                       >
                         Edit
@@ -467,6 +499,27 @@ export default function Settings() {
           </div>
         )}
       </div>
+
+      {/* Modals */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={alertModal.close}
+        type={alertModal.type}
+        title={alertModal.title}
+        message={alertModal.message}
+        onConfirm={alertModal.onConfirm}
+      />
+      
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={confirmModal.close}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        cancelText={confirmModal.cancelText}
+        type={confirmModal.type}
+        onConfirm={confirmModal.onConfirm!}
+      />
     </DashboardLayout>
   )
 }

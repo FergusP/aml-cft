@@ -4,6 +4,8 @@ import DashboardLayout from '@/components/layout/DashboardLayout'
 import { Users, Mail, Phone, Shield, Clock, CheckCircle } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { useAlertModal } from '@/hooks/useModal'
+import { AlertModal } from '@/components/ui/Modal'
 
 interface TeamMember {
   id: string
@@ -78,6 +80,8 @@ const statusDots = {
 }
 
 export default function InvestigationTeams() {
+  const alertModal = useAlertModal()
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -188,7 +192,11 @@ export default function InvestigationTeams() {
                   </div>
                 </div>
                 <button 
-                  onClick={() => alert(`Opening case assignment form for ${member.name}...`)}
+                  onClick={() => alertModal.showAlert({
+                    type: 'info',
+                    title: 'Assign Case',
+                    message: `Form penugasan kasus untuk ${member.name} akan segera dibuka. Anda dapat memilih kasus dan mengatur prioritas penugasan.`
+                  })}
                   className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Assign Case
@@ -266,13 +274,27 @@ export default function InvestigationTeams() {
             </div>
           </div>
           <button 
-            onClick={() => alert('Case assigned successfully!')}
+            onClick={() => alertModal.showAlert({
+              type: 'success',
+              title: 'Kasus Berhasil Ditugaskan',
+              message: 'Kasus telah berhasil ditugaskan ke investigator yang dipilih. Notifikasi akan dikirim ke investigator terkait.'
+            })}
             className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             Assign Case
           </button>
         </div>
       </div>
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={alertModal.close}
+        type={alertModal.type}
+        title={alertModal.title}
+        message={alertModal.message}
+        onConfirm={alertModal.onConfirm}
+      />
     </DashboardLayout>
   )
 }

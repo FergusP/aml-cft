@@ -7,6 +7,8 @@ import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
+import { useAlertModal } from '@/hooks/useModal'
+import { AlertModal } from '@/components/ui/Modal'
 
 interface Alert {
   id: string
@@ -103,6 +105,7 @@ export default function AlertCenter() {
   const [selectedSeverity, setSelectedSeverity] = useState<string>('all')
   const [selectedStatus, setSelectedStatus] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const alertModal = useAlertModal()
 
   const filteredAlerts = mockAlerts.filter(alert => {
     if (selectedSeverity !== 'all' && alert.severity !== selectedSeverity) return false
@@ -122,7 +125,11 @@ export default function AlertCenter() {
             <p className="text-gray-500 mt-1">Monitor dan kelola alert AML/CFT secara real-time</p>
           </div>
           <button 
-            onClick={() => alert('Exporting alerts to CSV...')}
+            onClick={() => alertModal.showAlert({
+              type: 'success',
+              title: 'Export Berhasil',
+              message: 'Data alert telah berhasil diekspor ke format CSV dan akan segera diunduh.'
+            })}
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Download className="h-4 w-4" />
@@ -287,7 +294,11 @@ export default function AlertCenter() {
                       Investigasi
                     </button>
                     <button 
-                      onClick={() => window.alert(`Viewing details for alert ${alert.id}`)}
+                      onClick={() => alertModal.showAlert({
+                        type: 'info',
+                        title: `Detail Alert ${alert.id}`,
+                        message: `${alert.description}\n\nWallet: ${alert.walletAddress}\nWaktu: ${format(alert.timestamp, 'dd MMM yyyy HH:mm', { locale: id })}\nStatus: ${alert.status}`
+                      })}
                       className="px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
                     >
                       Detail
@@ -298,6 +309,16 @@ export default function AlertCenter() {
             )
           })}
         </div>
+
+        {/* Alert Modal */}
+        <AlertModal
+          isOpen={alertModal.isOpen}
+          onClose={alertModal.close}
+          type={alertModal.type}
+          title={alertModal.title}
+          message={alertModal.message}
+          onConfirm={alertModal.onConfirm}
+        />
       </div>
     </DashboardLayout>
   )

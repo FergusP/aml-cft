@@ -6,6 +6,8 @@ import { format, formatDistanceToNow } from 'date-fns'
 import { id } from 'date-fns/locale'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { useAlertModal } from '@/hooks/useModal'
+import { AlertModal } from '@/components/ui/Modal'
 
 interface Notification {
   id: number
@@ -24,6 +26,7 @@ export default function Header() {
     { id: 3, type: 'info', message: 'Laporan harian tersedia', timestamp: new Date(Date.now() - 1000 * 60 * 30), read: true },
   ])
   const notificationRef = useRef<HTMLDivElement>(null)
+  const alertModal = useAlertModal()
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -82,14 +85,14 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-white px-6 shadow-sm">
+    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-gray-200 bg-white/95 backdrop-blur-sm px-6 shadow-sm">
       <div className="flex flex-1 items-center gap-4">
         <div className="relative max-w-md flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             placeholder="Cari wallet address, transaction hash..."
-            className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2 text-sm placeholder-gray-500 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-xl border border-gray-200 bg-gray-50/50 pl-10 pr-4 py-2.5 text-sm placeholder-gray-500 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
             onKeyPress={(e) => {
               if (e.key === 'Enter') {
                 const value = (e.target as HTMLInputElement).value
@@ -203,7 +206,11 @@ export default function Header() {
         </div>
 
         <button 
-          onClick={() => alert('Monitoring status: Active\nTransactions per second: 342\nActive nodes: 1,234')}
+          onClick={() => alertModal.showAlert({
+            type: 'info',
+            title: 'System Monitoring Status',
+            message: `Status: Active\nTransactions per second: 342\nActive nodes: 1,234\nUptime: 99.9%`
+          })}
           className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5 hover:bg-gray-50 cursor-pointer transition-colors"
         >
           <div className="h-2 w-2 rounded-full bg-green-500"></div>
@@ -211,6 +218,16 @@ export default function Header() {
           <ChevronDown className="h-4 w-4 text-gray-400" />
         </button>
       </div>
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={alertModal.close}
+        type={alertModal.type}
+        title={alertModal.title}
+        message={alertModal.message}
+        onConfirm={alertModal.onConfirm}
+      />
     </header>
   )
 }

@@ -19,6 +19,8 @@ import { motion } from 'framer-motion'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
+import { useAlertModal } from '@/hooks/useModal'
+import { AlertModal } from '@/components/ui/Modal'
 
 interface Report {
   id: string
@@ -96,20 +98,27 @@ export default function ComplianceReports() {
   const [selectedType, setSelectedType] = useState<string>('all')
   const [selectedPeriod, setSelectedPeriod] = useState<string>('2024')
   const [generatingReport, setGeneratingReport] = useState(false)
+  const alertModal = useAlertModal()
 
   const handleGenerateReport = () => {
     setGeneratingReport(true)
     // Simulate report generation
     setTimeout(() => {
       setGeneratingReport(false)
-      // In real app, would trigger download
-      alert('Laporan berhasil di-generate dan akan segera diunduh!')
+      alertModal.showAlert({
+        type: 'success',
+        title: 'Laporan Berhasil Dibuat',
+        message: 'Laporan compliance telah berhasil di-generate dan akan segera diunduh ke perangkat Anda.'
+      })
     }, 3000)
   }
 
   const handleDownloadReport = (reportId: string) => {
-    // In real app, would trigger download
-    alert(`Mengunduh laporan ${reportId}...`)
+    alertModal.showAlert({
+      type: 'info',
+      title: 'Mengunduh Laporan',
+      message: `Laporan ${reportId} sedang diproses untuk diunduh. Mohon tunggu sebentar.`
+    })
   }
 
   const filteredReports = mockReports.filter(report => {
@@ -314,7 +323,11 @@ export default function ComplianceReports() {
                     Download
                   </button>
                   <button 
-                    onClick={() => alert(`Viewing details for report ${report.id}`)}
+                    onClick={() => alertModal.showAlert({
+                      type: 'info',
+                      title: `Detail Laporan ${report.id}`,
+                      message: `Periode: ${report.period}\nStatus: ${report.status}\nUkuran: ${report.size}\n\nCompliance Score:\n- FATF: ${report.compliance.fatf}%\n- OJK: ${report.compliance.ojk}%\n- BI: ${report.compliance.bi}%`
+                    })}
                     className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
                   >
                     View Details
@@ -366,6 +379,16 @@ export default function ComplianceReports() {
             </label>
           </div>
         </div>
+
+        {/* Alert Modal */}
+        <AlertModal
+          isOpen={alertModal.isOpen}
+          onClose={alertModal.close}
+          type={alertModal.type}
+          title={alertModal.title}
+          message={alertModal.message}
+          onConfirm={alertModal.onConfirm}
+        />
       </div>
     </DashboardLayout>
   )

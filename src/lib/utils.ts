@@ -19,10 +19,10 @@ export function formatNumber(value: number): string {
 }
 
 export function getRiskColor(score: number): string {
-  if (score >= 80) return 'text-red-600 bg-red-50 border-red-200'
-  if (score >= 60) return 'text-orange-600 bg-orange-50 border-orange-200'
-  if (score >= 40) return 'text-yellow-600 bg-yellow-50 border-yellow-200'
-  return 'text-green-600 bg-green-50 border-green-200'
+  if (score >= 80) return 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg shadow-red-500/20'
+  if (score >= 60) return 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/20'
+  if (score >= 40) return 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg shadow-yellow-500/20'
+  return 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/20'
 }
 
 export function getRiskLevel(score: number): string {

@@ -17,6 +17,8 @@ import {
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { useAlertModal } from '@/hooks/useModal'
+import { AlertModal } from '@/components/ui/Modal'
 
 interface Node {
   id: string
@@ -59,6 +61,7 @@ export default function InvestigationTools() {
   const [zoomLevel, setZoomLevel] = useState(1)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const alertModal = useAlertModal()
 
   useEffect(() => {
     drawNetwork()
@@ -129,7 +132,11 @@ export default function InvestigationTools() {
     setIsAnalyzing(true)
     setTimeout(() => {
       setIsAnalyzing(false)
-      alert('Analisis network selesai! Ditemukan 3 pola mencurigakan.')
+      alertModal.showAlert({
+        type: 'success',
+        title: 'Analisis Network Selesai',
+        message: 'Ditemukan 3 pola transaksi mencurigakan:\n\n• Circular transaction pattern\n• Multiple mixer interactions\n• Rapid fund movement\n\nSilakan lihat detail di panel kanan untuk investigasi lebih lanjut.'
+      })
     }, 2000)
   }
 
@@ -160,7 +167,11 @@ export default function InvestigationTools() {
               )}
             </button>
             <button 
-              onClick={() => alert('Exporting network graph...')}
+              onClick={() => alertModal.showAlert({
+                type: 'info',
+                title: 'Export Network Graph',
+                message: 'Network graph sedang diproses untuk export. File akan diunduh dalam format PNG dan JSON untuk analisis lebih lanjut.'
+              })}
               className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
             >
               <Download className="h-4 w-4" />
@@ -190,7 +201,11 @@ export default function InvestigationTools() {
                     <ZoomIn className="h-4 w-4" />
                   </button>
                   <button 
-                    onClick={() => alert('Entering fullscreen mode...')}
+                    onClick={() => alertModal.showAlert({
+                      type: 'info',
+                      title: 'Fullscreen Mode',
+                      message: 'Mode fullscreen akan memberikan tampilan network graph yang lebih luas untuk analisis detail transaksi.'
+                    })}
                     className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                   >
                     <Maximize2 className="h-4 w-4" />
@@ -377,6 +392,16 @@ export default function InvestigationTools() {
           </div>
         </div>
       </div>
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={alertModal.close}
+        type={alertModal.type}
+        title={alertModal.title}
+        message={alertModal.message}
+        onConfirm={alertModal.onConfirm}
+      />
     </DashboardLayout>
   )
 }

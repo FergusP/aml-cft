@@ -5,6 +5,8 @@ import DashboardLayout from '@/components/layout/DashboardLayout'
 import { Search, AlertTriangle, CheckCircle, XCircle, Activity, Users, TrendingUp, Clock } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn, getRiskColor, getRiskLevel, formatCurrency } from '@/lib/utils'
+import { useAlertModal } from '@/hooks/useModal'
+import { AlertModal } from '@/components/ui/Modal'
 
 interface WalletData {
   address: string
@@ -34,6 +36,7 @@ export default function WalletAnalysis() {
   const [walletData, setWalletData] = useState<WalletData | null>(null)
   const [isFlagging, setIsFlagging] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
+  const alertModal = useAlertModal()
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -55,7 +58,11 @@ export default function WalletAnalysis() {
     setIsFlagging(true)
     setTimeout(() => {
       setIsFlagging(false)
-      alert('Wallet berhasil diflag untuk investigasi lebih lanjut!')
+      alertModal.showAlert({
+        type: 'success',
+        title: 'Wallet Berhasil Diflag',
+        message: 'Wallet telah berhasil ditandai untuk investigasi lebih lanjut. Tim investigasi akan segera menindaklanjuti.'
+      })
     }, 1500)
   }
 
@@ -63,7 +70,11 @@ export default function WalletAnalysis() {
     setIsDownloading(true)
     setTimeout(() => {
       setIsDownloading(false)
-      alert('Laporan analisis wallet sedang diunduh...')
+      alertModal.showAlert({
+        type: 'success',
+        title: 'Laporan Sedang Diunduh',
+        message: 'Laporan analisis wallet sedang diproses dan akan segera diunduh ke perangkat Anda.'
+      })
     }, 1500)
   }
 
@@ -94,7 +105,7 @@ export default function WalletAnalysis() {
             <button
               type="submit"
               disabled={isSearching}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-blue-600/20 hover:shadow-xl hover:shadow-blue-600/30"
             >
               {isSearching ? (
                 <div className="flex items-center gap-2">
@@ -117,16 +128,17 @@ export default function WalletAnalysis() {
               className="space-y-6"
             >
               {/* Risk Score Card */}
-              <div className="rounded-xl bg-white p-6 shadow-sm border border-gray-100">
+              <div className="rounded-2xl bg-gradient-to-br from-white to-gray-50 p-8 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Wallet Risk Assessment</h3>
-                    <p className="text-sm text-gray-500 mt-1 font-mono">{walletData.address}</p>
+                    <h3 className="text-xl font-bold text-gray-900">Wallet Risk Assessment</h3>
+                    <p className="text-sm text-gray-500 mt-2 font-mono bg-gray-100 px-3 py-1 rounded-lg inline-block">{walletData.address}</p>
                   </div>
                   <div className="text-right">
-                    <div className="text-3xl font-bold">{walletData.riskScore}/100</div>
+                    <div className="text-5xl font-bold bg-gradient-to-br from-gray-700 to-gray-900 bg-clip-text text-transparent">{walletData.riskScore}</div>
+                    <p className="text-sm text-gray-500 mb-2">out of 100</p>
                     <span className={cn(
-                      'inline-flex items-center rounded-full px-3 py-1 text-sm font-medium mt-2',
+                      'inline-flex items-center rounded-full px-4 py-2 text-sm font-bold shadow-sm',
                       getRiskColor(walletData.riskScore)
                     )}>
                       {getRiskLevel(walletData.riskScore)}
@@ -171,11 +183,11 @@ export default function WalletAnalysis() {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.1 }}
-                  className="rounded-xl bg-white p-6 shadow-sm border border-gray-100"
+                  className="rounded-2xl bg-white p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all duration-300 group"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="rounded-lg bg-blue-100 p-2">
-                      <Activity className="h-5 w-5 text-blue-600" />
+                    <div className="rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-3 group-hover:scale-110 transition-transform duration-300">
+                      <Activity className="h-5 w-5 text-blue-700" />
                     </div>
                     <h3 className="font-semibold text-gray-900">Transaction Pattern</h3>
                   </div>
@@ -199,11 +211,11 @@ export default function WalletAnalysis() {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="rounded-xl bg-white p-6 shadow-sm border border-gray-100"
+                  className="rounded-2xl bg-white p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all duration-300 group"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="rounded-lg bg-green-100 p-2">
-                      <Users className="h-5 w-5 text-green-600" />
+                    <div className="rounded-xl bg-gradient-to-br from-green-100 to-green-200 p-3 group-hover:scale-110 transition-transform duration-300">
+                      <Users className="h-5 w-5 text-green-700" />
                     </div>
                     <h3 className="font-semibold text-gray-900">Network Analysis</h3>
                   </div>
@@ -227,11 +239,11 @@ export default function WalletAnalysis() {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.3 }}
-                  className="rounded-xl bg-white p-6 shadow-sm border border-gray-100"
+                  className="rounded-2xl bg-white p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all duration-300 group"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="rounded-lg bg-purple-100 p-2">
-                      <Clock className="h-5 w-5 text-purple-600" />
+                    <div className="rounded-xl bg-gradient-to-br from-purple-100 to-purple-200 p-3 group-hover:scale-110 transition-transform duration-300">
+                      <Clock className="h-5 w-5 text-purple-700" />
                     </div>
                     <h3 className="font-semibold text-gray-900">Timeline</h3>
                   </div>
@@ -257,7 +269,7 @@ export default function WalletAnalysis() {
                 <button 
                   onClick={handleFlagForInvestigation}
                   disabled={isFlagging}
-                  className="px-6 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-semibold hover:from-red-700 hover:to-red-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-red-600/20"
                 >
                   {isFlagging ? (
                     <div className="flex items-center gap-2">
@@ -271,7 +283,7 @@ export default function WalletAnalysis() {
                 <button 
                   onClick={handleDownloadReport}
                   disabled={isDownloading}
-                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="px-6 py-3 bg-white text-gray-700 rounded-xl font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 border border-gray-300 hover:border-gray-400 shadow-sm"
                 >
                   {isDownloading ? (
                     <div className="flex items-center gap-2">
@@ -284,7 +296,7 @@ export default function WalletAnalysis() {
                 </button>
                 <button 
                   onClick={handleViewTransactionGraph}
-                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-all"
+                  className="px-6 py-3 bg-white text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200 border border-gray-300 hover:border-gray-400 shadow-sm"
                 >
                   Lihat Transaction Graph
                 </button>
@@ -321,6 +333,16 @@ export default function WalletAnalysis() {
             </div>
           </div>
         )}
+
+        {/* Alert Modal */}
+        <AlertModal
+          isOpen={alertModal.isOpen}
+          onClose={alertModal.close}
+          type={alertModal.type}
+          title={alertModal.title}
+          message={alertModal.message}
+          onConfirm={alertModal.onConfirm}
+        />
       </div>
     </DashboardLayout>
   )
